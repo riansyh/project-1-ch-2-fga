@@ -1,15 +1,19 @@
 package routers
 
-import "github.com/gin-gonic/gin"
+import (
+	"project-1/controllers"
+
+	"github.com/gin-gonic/gin"
+)
 
 func StartServer() *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/books")
-	router.GET("/books/:id")
-	router.POST("/books")
-	router.PUT("/books")
-	router.DELETE("/books")
+	router.GET("/books", controllers.GetAllBooks)
+	router.GET("/books/:id", controllers.GetBook)
+	router.POST("/books", controllers.CreateBook)
+	router.PUT("/books/:id", controllers.UpdateBook)
+	router.DELETE("/books/:id", controllers.DeleteBook)
 
 	return router
 }

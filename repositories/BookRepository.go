@@ -1,13 +1,11 @@
 package repositories
 
 import (
-	"database/sql"
 	"project-1/database"
 	"project-1/models"
 )
 
 var (
-	db  *sql.DB
 	err error
 )
 
@@ -39,7 +37,7 @@ func DeleteBook(id int) error {
 	db := database.GetDB()
 	book := models.Book{}
 
-	err := db.Where("id = ?", id).Updates(&book).Error
+	err := db.Where("id = ?", id).Delete(&book).Error
 	if err != nil {
 		return err
 	}
