@@ -19,7 +19,7 @@ func CreateBook(ctx *gin.Context) {
 		return
 	}
 
-	err := repositories.AddBook(newBook)
+	newBook, err := repositories.AddBook(newBook)
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
@@ -30,13 +30,13 @@ func CreateBook(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated,
-		"Created",
+		newBook,
 	)
 }
 
 func UpdateBook(ctx *gin.Context) {
 	bookId := ctx.Param("id")
-	idInt, err := strconv.Atoi(bookId)
+	idInt, _ := strconv.Atoi(bookId)
 
 	var UpdatedBook models.Book
 
@@ -45,7 +45,7 @@ func UpdateBook(ctx *gin.Context) {
 		return
 	}
 
-	err = repositories.UpdateBook(UpdatedBook, idInt)
+	UpdatedBook, err := repositories.UpdateBook(UpdatedBook, idInt)
 
 	if err != nil {
 		panic(err)
@@ -60,17 +60,17 @@ func UpdateBook(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK,
-		"Updated",
+		UpdatedBook,
 	)
 }
 
 func GetBook(ctx *gin.Context) {
 	bookId := ctx.Param("id")
-	idInt, err := strconv.Atoi(bookId)
+	idInt, _ := strconv.Atoi(bookId)
 
 	var bookData models.Book
 
-	bookData, err = repositories.GetBook(idInt)
+	bookData, err := repositories.GetBook(idInt)
 
 	if err == sql.ErrNoRows {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
@@ -103,9 +103,9 @@ func GetAllBooks(ctx *gin.Context) {
 
 func DeleteBook(ctx *gin.Context) {
 	bookId := ctx.Param("id")
-	idInt, err := strconv.Atoi(bookId)
+	idInt, _ := strconv.Atoi(bookId)
 
-	err = repositories.DeleteBook(idInt)
+	err := repositories.DeleteBook(idInt)
 
 	if err == sql.ErrNoRows {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
@@ -119,7 +119,7 @@ func DeleteBook(ctx *gin.Context) {
 		panic(err)
 	}
 
-	ctx.JSON(http.StatusOK,
-		"Deleted",
-	)
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Book deleted successfully",
+	})
 }

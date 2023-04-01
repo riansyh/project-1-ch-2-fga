@@ -9,28 +9,33 @@ var (
 	err error
 )
 
-func AddBook(book models.Book) error {
+func AddBook(book models.Book) (models.Book, error) {
 	db := database.GetDB()
 
 	err := db.Create(&book).Error
 
 	if err != nil {
-		return err
+		return models.Book{}, err
 	}
 
-	return nil
+	return book, nil
 }
 
-func UpdateBook(updatedBook models.Book, id int) error {
+func UpdateBook(updatedBook models.Book, id int) (models.Book, error) {
 	db := database.GetDB()
 	book := models.Book{}
 
-	err := db.Model(&book).Where("id = ?", id).Updates(updatedBook).Error
+	err := db.Model(&book).Where("id = ?", id).Updates(&updatedBook).Error
 	if err != nil {
-		return err
+		return models.Book{}, err
 	}
 
-	return nil
+	err = db.Model(&book).Where("id = ?", id).First(&updatedBook).Error
+	if err != nil {
+		return models.Book{}, err
+	}
+
+	return updatedBook, nil
 }
 
 func DeleteBook(id int) error {
