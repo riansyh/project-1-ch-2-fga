@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"project-1/models"
@@ -9,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func CreateBook(ctx *gin.Context) {
@@ -47,16 +47,16 @@ func UpdateBook(ctx *gin.Context) {
 
 	UpdatedBook, err := repositories.UpdateBook(UpdatedBook, idInt)
 
-	if err != nil {
-		panic(err)
-	}
-
-	if err == sql.ErrNoRows {
+	if err == gorm.ErrRecordNotFound || err.Error() == "no rows affected" {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"error_status":  "Data Not Found",
 			"error_message": fmt.Sprintf("book with id %v not found", bookId),
 		})
 		return
+	}
+
+	if err != nil {
+		panic(err)
 	}
 
 	ctx.JSON(http.StatusOK,
@@ -72,7 +72,7 @@ func GetBook(ctx *gin.Context) {
 
 	bookData, err := repositories.GetBook(idInt)
 
-	if err == sql.ErrNoRows {
+	if err == gorm.ErrRecordNotFound {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"error_status":  "Data Not Found",
 			"error_message": fmt.Sprintf("book with id %v not found", bookId),
@@ -107,7 +107,7 @@ func DeleteBook(ctx *gin.Context) {
 
 	err := repositories.DeleteBook(idInt)
 
-	if err == sql.ErrNoRows {
+	if err == gorm.ErrRecordNotFound || err.Error() == "no rows affected" {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"error_status":  "Data Not Found",
 			"error_message": fmt.Sprintf("book with id %v not found", bookId),

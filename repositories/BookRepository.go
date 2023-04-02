@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"project-1/database"
 	"project-1/models"
 )
@@ -25,9 +26,14 @@ func UpdateBook(updatedBook models.Book, id int) (models.Book, error) {
 	db := database.GetDB()
 	book := models.Book{}
 
-	err := db.Model(&book).Where("id = ?", id).Updates(&updatedBook).Error
-	if err != nil {
-		return models.Book{}, err
+	result := db.Model(&book).Where("id = ?", id).Updates(&updatedBook)
+
+	if result.RowsAffected == 0 {
+		return models.Book{}, errors.New("no rows affected")
+	}
+
+	if result.Error != nil {
+		return models.Book{}, result.Error
 	}
 
 	err = db.Model(&book).Where("id = ?", id).First(&updatedBook).Error
@@ -42,9 +48,14 @@ func DeleteBook(id int) error {
 	db := database.GetDB()
 	book := models.Book{}
 
-	err := db.Where("id = ?", id).Delete(&book).Error
-	if err != nil {
-		return err
+	result := db.Where("id = ?", id).Delete(&book)
+
+	if result.RowsAffected == 0 {
+		return errors.New("no rows affected")
+	}
+
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return nil
